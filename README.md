@@ -1,3 +1,40 @@
+## Fork
+
+This is a fork of environ. It works around an issue I had.
+
+It can be found at `[madstap/environ "1.1.0"]`.
+
+I use a macro like this to have access to an environment variable in cljs. (`foo/util.cljc`)
+
+```clojure
+(ns foo.util
+  #?(:cljs (:require-macros [foo.util :refer [env]]))
+  (:require
+   #?(:clj [environ.core :as environ])))
+
+#?(:clj
+   (defmacro env
+     [] (keyword (environ/env :foo-var))))
+```
+
+Which works fine when compiled in prod, but when using cider/figwheel it blows up.
+
+Chrome devtools tells me that it is compiled something like the following.
+
+```javascript
+// Compiled by ClojureScript 1.9.660 {}
+Warning: environ value :dev for key :foo-var has been cast to string
+goog.provide('foo.util');
+goog.require('cljs.core');
+
+// ... more stuff
+```
+
+So the problem is that the warning, that is usually printed to the console,
+ends up in the emitted js.
+
+The workaround is simply commenting out the calls to `println`.
+
 # Environ
 
 Environ is a Clojure library for managing environment settings from a
